@@ -1,0 +1,251 @@
+------------------------------
+Two main components of k8s are master node and worker node. Docker engine runs in worker node. Master node is one managing the worker nodes. We don't login into worker nodes, rather we configure/manage through master node.
+------------------------------
+Master node is also called control plane. Basic services in master node are API server, scheduler, controller manager and etcd.
+------------------------------
+Kubelet proxy and docker engine are the services running in worker node.
+------------------------------
+Init Containers are special containers that run before the main containers in a pod start. They are typically used to perform setup tasks or pre-processing before the application containers begin running. Like DB initialization, etc
+------------------------------
+Sidecar Containers are additional containers that run alongside the main application container within the same pod. They are often used to extend or enhance the functionality of the main container without modifying it.  used for logging, monitoring etc.
+------------------------------
+Pod is the smallest deployable unit and the basic building block for deploying and managing applications. It's the fundamental execution unit in Kubernetes, and it can contain one or more containers. A Pod represents a single instance of a running process in a cluster. we manage pods and not contianer.
+------------------------------
+pod can run multiple containers, but it's a best practice to have one main application container and potentially one or more helper containers, often referred to as "sidecar containers."
+------------------------------
+minikube is a single node cluster. It requires either docker or vm to run.
+------------------------------
+we do not usually edit the pod. Instead we create a new pod.
+also, we do not deploy pods but we deploy deployment in prod environment
+------------------------------
+KOPS SETUP
+  create ec2
+  create user in iam, give adminaccess/required access to the user and get accessid and secret key
+  create s3 bucket in the same ec2 zone
+  create hosted zone in route 53
+  add name servers in domain provider
+  download kubectl and kops
+  move kubectl and kops to /usr/local/begin
+  validate name servers by running $nslookup -type=ns kubevpro.cheapskate,art.co
+------------------------------
+kops create cluster --name=kubevpro.cheapskatemart.co --state=s3://k8ss3-123 --zones=us-west-1a,us-west-1b --node-count=2 --node-size=t3.small --master-size=t3.medium --dns-zone=kubevpro.cheapskatemart.co --node-volume-size=8 --master-volume-size=8
+------------------------------
+to validate the creation of cluster =>kops validate cluster --state=s3://k8ss3-123
+------------------------------
+by doing the above we will automatically have a autoscaling group, a serparate vpc create for this k8s and also new records in route 53
+------------------------------
+to delete the created cluster=> kops delete cluster --name=kubevpro.cheapskatemart.co --state=s3://k8ss3-123 --yes
+------------------------------
+A kubeconfig file is a configuration file used to interact with a Kubernetes cluster. It stores authentication information, cluster details, and context settings, allowing you to switch between different clusters and namespaces when working with Kubernetes. It contians information like cluster info, user info, context, namespaces etc.
+------------------------------
+Default kubeconfig file location is at /home/user/.kube/config
+------------------------------
+having kubectl installed and access to kubeconfig file on different machine, will let us to run kubectl commands related to the cluster in kubeconfig file. This way we can integrate other tools like ansible, jenkins etc.
+------------------------------
+Namespace helps in organizing and isolating resources within a cluster. Namespaces provide a way to partition and scope resources, such as pods, services, and deployments, to avoid naming conflicts and improve resource management.
+------------------------------
+Namespace is often used in environments where the users are spread across multiple teams/project. If clusters is managed by tens of user, there is really no need to use namespaces.
+------------------------------
+you can have pods with same name in different namespace but in same name space. Like nginx1 can exist in namespace1 and we can create another pod with same name nginx1 in namespace2. We cannot have same pod name in same namespace twice.
+------------------------------
+Unless specified, everything is created under default namespace. However, we can change that by running kubectl config set-context --current --namespace=<insert-namespace-name-here>. Once this is applied, everthing will created under the provided name and not under default.
+------------------------------
+kubectl get all
+kubectl get all --all-namespaces
+kubectl get ns
+kubectl create ns namespacename
+kubectl run nginx1 --image=nginx -n namespacename
+kubectl get pod -n namespacename
+------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+------------------------------
+kubectl create -f pod.yml
+kubectl get pod
+kubectl describe pod podname
+kubectl get pod podname -o yaml
+kubectl get pod podname -o yaml > pod-details.yaml
+kubectl edit pod podname
+kubectl logs podname
+------------------------------
+kubectl describe node nodename -o yaml
+
+------------------------------
+SERVICE:
+When a pod is created, each pod will have its own Ip address. Since pods are ephemeral, meaning pods come and go frequently, they often get new ip for newly created pods. We cannot use these pod IP as they keep changing. To fix this, we use service which will give us a stable IP address. Services can also help us with load balancing by routing the traffic to the right pod.
+------------------------------
+TYPES of services:
+nodeport
+headless
+clusterIP
+loadbalancer
+------------------------------
+ClusterIP: A ClusterIP service is used for internal communication within the cluster. Also, default service type. Usually used for frontend to communicate with the backend or backend with backend etc.
+------------------------------
+NodePort: A NodePort service exposes a service on a static port on each node, allowing external access to the service.
+------------------------------
+Headless: A Headless service is used when you don't need load balancing; it provides DNS entries for the pods without a ClusterIP.
+------------------------------
+LoadBalancer: A LoadBalancer service provisions an external IP address and load balances incoming traffic to the service. Also, when this is created in kops using aws, node port will be automatically created.
+------------------------------
+ReplicaSet is a resource used to ensure that a specified number of replica pods are running at all times. Even if a worker node goes down, replicaset will make sure to create new pods in healthy nodes. Also, it can be used to monitor as pods created with replicaset are monitored for their health state.
+------------------------------
+kubectl scale --replicas=3 rs/replicasetname {cmdline way to scale replica} This is not recommended to run.
+------------------------------
+"Deployment" is a resource object used to declaratively manage and control the deployment of applications or microservices. It provides a way to define, update, and scale an application's desired state, ensuring that a specified number of replica Pods are running at all times. Features desired state management, scaling, rolling update, etc
+------------------------------
+When me make changes to deployment, if there is any changes to pod(image version etc), a new replicaset will be created and the roll back will happen one by one. Also, we will be able to see the previous replicaset as well new replicaset. We have an option undo the changes and roll back to the previous replicaset using undo command (this will be cmdline)
+------------------------------
+To pass commands and args, we specify that in container.
+------------------------------
+VOLUMES
+
+a volume is a directory that is accessible to containers running in a pod. Volumes are used to provide persistent storage, shared data, or data exchange between containers in the same pod. A volume can be backed by various storage types, including empty directories, host paths, networked file systems, cloud storage, and more.
+
+volumes are attached to pod and they are pod specific. {for reference---We define volumes where we specify pod info (pod/deployment.yaml).}
+
+------------------------------
+EmptyDir is a type of volume that provides a simple and temporary storage solution within a pod. An emptyDir volume is initially empty when a pod is created, and it exists for the lifetime of the pod.
+------------------------------
+hostPath volume allows you to mount a directory from the host machine (the node where the pod is running) into the pod. This means that the data stored in a hostPath volume is associated with the host machine's local file system, and it can be used for sharing files or data from the host to the containers in the pod.
+
+hostPath volumes are specific to the node where the pod is running. They are not shared between pods on different nodes. Each pod has its own access to the local path.
+------------------------------
+PERSISTENT VOLUME
+
+PersistentVolume (PV) is a resource object that represents a piece of networked storage, such as a physical disk or a storage class. It serves as a way to decouple the definition of networked storage from how it is consumed by pods. A PersistentVolume is a cluster-level resource, and it is available for consumption by any pod in the cluster.
+
+You can define and configure the storage resources (the PersistentVolume) separately from how individual pods access and use that storage.
+
+Even if pods using the PersistentVolume are deleted or terminated, the data in the PersistentVolume remains intact and accessible.
+------------------------------
+PERSISTENT VOLUME CLAIM
+
+PersistentVolumeClaim (PVC) is a resource object used by pods to request access to a specific amount of storage from a PersistentVolume (PV). PVCs act as an intermediary between the storage requirements of a pod and the available storage resources provided by the cluster.
+
+------------------------------
+{We create --PV--PVC---and use in pod definition}
+------------------------------
+ConfigMap is a resource object used to store configuration data as key-value pairs, which can be used by pods to configure application settings. It provides a way to decouple configuration from the container images, allowing you to manage configuration data separately from the application code.
+
+------------------------------
+environment variables are used to pass configuration and runtime information to pods and containers. They allow you to customize the behavior of applications running in a Kubernetes cluster.
+------------------------------
+
+"Secrets" are a resource object used to store and manage sensitive information, such as passwords, API keys, and other confidential data. Secrets provide a secure way to manage and distribute sensitive information to pods and containers.
+------------------------------
+"Opaque" Secret is a type of Secret used to store and manage arbitrary, unstructured, or binary data. It is a flexible option for storing sensitive information or configuration data as key-value pairs where the values are typically base64-encoded.
+------------------------------
+In order to pull docker images from private account, we can create secret type docker-registry and pass credentials in the secret definition file.
+------------------------------
+"Ingress" is an API object that manages external access to services within the cluster. Ingress provides a way to define rules for routing external HTTP and HTTPS traffic to specific services or endpoints, making it a fundamental component for managing access to applications in your cluster.
+
+create ingress controller{nginx}---create svc---create deployment---create cname record and add NLB in godaddy--create ingress
+
+creating nginx ingress controller in aws will create a NLB that can be used to point your URL by adding to cname record in domain provider
+
+------------------------------
+"Taints" and "Tolerations" are mechanisms that allow you to control which nodes can run specific pods. They are particularly useful when you have nodes with different characteristics or requirements and you need to ensure that certain pods are scheduled on nodes that meet those requirements.
+
+Taints are set on nodes and tolerations are set on pods.
+
+------------------------------
+In production grade cluster by default, the master node is tainted so that no pods run on it. However, in minikube as it is a single node cluster, there is no taint.
+
+------------------------------
+TYPES of taint effects
+
+kubectl taint nodes node-1 key=value:NoSchedule
+kubectl taint nodes node-2 key=value:PreferNoSchedule
+kubectl taint nodes node-3 key=value:NoExecute
+
+------------------------------
+To remove a taint just add - {minus}at the end of the taint command. LIKE:
+
+kubectl taint nodes node-1 key=value:NoSchedule-
+
+------------------------------
+NODE SELECTOR
+
+"NodeSelector" is a field in a pod's specification that allows you to constrain which nodes the pod can be scheduled on based on labels assigned to nodes. It's a way to influence the scheduling of pods to nodes that meet specific criteria.
+
+kubectl label nodes node-1 disk=ssd
+
+under pod definition file
+
+spec:
+  containers:
+  - name: my-container
+    image: nginx
+  nodeSelector:
+    disk: ssd
+    zone: us-west
+
+We can have multiple label for a single node
+
+------------------------------
+NODE AFFINITY
+
+"Node Affinity" is a concept that allows you to influence the scheduling of pods by specifying rules that indicate the node characteristics or attributes to which a pod should be scheduled. Node Affinity provides finer-grained control over pod placement by defining preferences or requirements for the nodes on which pods should be scheduled.
+
+kubectl get nodes minikube --show-labels
+
+------------------------------
+
+Node Affinity Types:
+
+    RequiredDuringSchedulingIgnoredDuringExecution:
+
+If a pod has this type of Node Affinity rule, the scheduler will attempt to schedule the pod onto nodes that meet the defined rules.
+If no nodes meet the rules, the pod will remain unscheduled, waiting for a suitable node.
+
+    PreferredDuringSchedulingIgnoredDuringExecution:
+
+If a pod has this type of Node Affinity rule, the scheduler will prefer to schedule the pod onto nodes that meet the defined rules, but it is not mandatory.
+If no nodes meet the rules, the scheduler will still place the pod on any available node.
+
+------------------------------
+ACCESS MODES:
+
+RBAC (Role based authorization control)
+ABAC (attribute based authorization control)
+Node authorization
+
+Out of this RBAC is popular.
+
+To switch user: kubectl config use-context user-2-context
+
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+
+
+
+
+
+
+
+
+ 

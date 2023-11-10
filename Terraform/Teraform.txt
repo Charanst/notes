@@ -1,0 +1,138 @@
+
+Terraform is an open-source infrastructure as code (IaC) tool created by HashiCorp. It allows you to define and provision infrastructure and services in a declarative manner. Terraform enables you to manage your infrastructure by writing code, which is typically referred to as "Terraform configuration."
+-------------------------
+Purpose:
+
+Terraform: Infrastructure provisioning and orchestration.
+Configuration Management Tools: Server and application configuration management.
+Focus:
+
+Terraform: Infrastructure as Code (IaC), defining and managing infrastructure resources.
+Configuration Management Tools: Server automation, software and configuration management.
+Typical Use Cases:
+
+Terraform: Creating virtual machines, networks, load balancers, databases, and other infrastructure components.
+Configuration Management Tools: Managing server configurations, deploying and configuring applications, ensuring consistency across servers.
+Configuration Syntax:
+
+Terraform: HashiCorp Configuration Language (HCL) or JSON.
+Configuration Management Tools: Domain-specific languages or scripts specific to the tool (e.g., Puppet DSL, Chef DSL, Ansible YAML).
+Resources Managed:
+
+Terraform: Infrastructure resources and services, including cloud resources, networks, and more.
+Configuration Management Tools: Individual server configurations, application deployments, and software management.
+Dependencies and Ordering:
+
+Terraform: Manages dependencies between infrastructure resources, ensuring they are created or modified in the correct order.
+Configuration Management Tools: Ensure that the configuration of a server or application is in the desired state, without managing dependencies between servers.
+State Management:
+
+Terraform: Maintains a state file to track the current state of the infrastructure.
+Configuration Management Tools: Typically don't manage infrastructure state but focus on server and application state.
+Multi-Cloud Support:
+
+Terraform: Supports multiple cloud providers and on-premises infrastructure.
+Configuration Management Tools: May not have native multi-cloud support but can be used across different cloud providers.
+-------------------------
+terraform init
+terraform validate
+terraform plan
+terraform fmt
+terraform apply
+-------------------------
+variables are used to parameterize your configuration files, allowing you to define and manage values that can be customized based on your specific requirements. Variables provide flexibility and reusability in your infrastructure code.
+
+variable "region" {
+  description = "The AWS region in which to create resources."
+  type        = string
+  default     = "us-east-1"
+}
+
+
+usage:
+
+resource "aws_instance" "example" {
+  ami           = "ami-0c55b159cbfafe1f0"
+  instance_type = "t2.micro"
+  region        = var.region
+}
+-------------------------
+
+a provisioner is a set of configurations that allow you to run scripts or commands on a resource after it has been created or destroyed. Provisioners are useful for tasks such as initializing software, configuring resources, and performing actions on instances.
+-------------------------
+local-exec {used for printing message etc}
+remote-exec {used to install any software on remote machine}
+file {used to copy files}
+-------------------------
+
+In Terraform, .tfvars files are used to specify variable values for your configuration. These files are typically used to separate variable values from the configuration code, making it easier to manage and maintain variable values.
+
+-------------------------
+In Terraform, you can use conditionals to control the behavior of your configuration based on certain conditions or variables. Conditionals are helpful for making your configuration more dynamic and adaptable to different scenarios.
+
+resource "aws_instance" "example" {
+  ami           = var.use_production_ami ? "ami-123456" : "ami-789012"
+  instance_type = var.instance_type
+}
+
+result = condition ? value_if_true : value_if_false
+
+-------------------------
+In Terraform, modules are a way to organize and reuse infrastructure code. They allow you to encapsulate a set of related resources into a single, reusable unit. Modules can simplify your Terraform configurations, promote code reusability, and make it easier to manage complex infrastructure setups.
+
+-------------------------
+
+In Terraform, the state file is a critical component that is used to keep track of the current state of your infrastructure. It stores metadata about the resources you've defined in your Terraform configuration, their dependencies, and the relationships between them. Terraform uses this state to plan and apply changes to your infrastructure.
+
+-------------------------
+Using a remote backend in Terraform is a best practice when working on infrastructure as code (IaC) projects, as it offers several advantages over local state storage. A remote backend allows you to store your state file in a central, shared location, facilitating collaboration and ensuring that your state is stored securely and consistently.
+
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-state-bucket"
+    key            = "terraform.tfstate"
+    region         = "us-west-2"
+    encrypt        = true
+    dynamodb_table = "my-lock-table"
+  }
+}
+
+Amazon DynamoDB can be used as a locking mechanism for Terraform state to prevent concurrent modifications of the same Terraform state file when using a remote state backend. Terraform leverages DynamoDB for this purpose, and it's often used with the S3 backend to provide both remote state storage and locking capabilities.
+-------------------------
+
+In Terraform, locking is a mechanism used to prevent multiple users or processes from concurrently applying changes to the same set of Terraform-managed resources. It ensures that only one user or process can apply changes to a given Terraform state at a time. Locking is important in a collaborative or shared infrastructure environment to prevent conflicts and data corruption.
+
+
+------------------------
+
+
+In Terraform, workspaces provide a way to manage multiple instances of your infrastructure configurations within a single project. Workspaces allow you to maintain separate states for different environments, such as development, staging, and production, while using the same configuration files. Each workspace has its own Terraform state, variables, and resources.
+
+terraform workspace new dev
+terraform workspace select dev
+terraform workspace list
+
+
+
+ex:
+
+
+resource "aws_instance" "example" {
+  ami           = var.workspace == "dev" ? "ami-dev" : "ami-prod"
+  instance_type = "t2.micro"
+}
+-----------------------------
+
+Using HashiCorp Vault with Terraform is a common practice for managing and securing sensitive information, such as API keys, passwords, and other secrets, in your infrastructure code. Vault provides a centralized and secure way to store and manage secrets, and Terraform can dynamically fetch these secrets during the provisioning process.
+
+
+
+
+
+-----------------------------
+
+
+
+
+
+
