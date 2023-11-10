@@ -125,14 +125,25 @@ resource "aws_instance" "example" {
 
 Using HashiCorp Vault with Terraform is a common practice for managing and securing sensitive information, such as API keys, passwords, and other secrets, in your infrastructure code. Vault provides a centralized and secure way to store and manage secrets, and Terraform can dynamically fetch these secrets during the provisioning process.
 
+comes with -dev and -prod servers.
 
+vault server -dev -dev-listen-address=0.0.0.0:8200
 
+-----------------------------
+Creating a secret engine in HashiCorp Vault, such as the Key/Value (KV) secrets engine, is similar to configuring a secure storage location for secrets. However, once the secrets engine is enabled, you need to explicitly feed or store secrets within that engine.
 
 
 -----------------------------
+with access option on vault dashboard, we can create roles. (app-role option).However, it cannot be done via UI. we will have to use cmd line.
 
 
+with policy, we can create policies.
 
-
-
-
+-----------------------------
+to create, we use resource keyword
+to retrieve, we use data keyword
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
+-----------------------------
