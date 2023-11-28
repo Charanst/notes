@@ -1,0 +1,19 @@
+Git rebase is a powerful command used to integrate changes from one branch into another by applying each commit from the source branch onto the target branch. Unlike git merge, which creates a new commit that combines changes from two branches, git rebase rewrites the commit history, resulting in a linear sequence of commits.
+
+
+Exactly, that's correct. When you have a conflict during a rebase, it means that changes in the same portion of the same file in both branches (feature_branch and master in this case) cannot be automatically merged by Git because they are conflicting.
+
+The conflict arises because the changes made in the myfile.txt file in the feature_branch are incompatible with the changes made in the same file in the master branch. Git doesn't know which changes to keep, so it asks you to manually resolve the conflict.
+
+----------------------------
+Merging in Git combines changes from different branches. Unlike rebase, which creates a linear history, merge preserves the commit history of both branches.
+
+----------------------------
+----------------------------
+--------------------------------------------------------
+
+--------------------------------------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
