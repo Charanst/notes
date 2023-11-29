@@ -9,6 +9,14 @@ The conflict arises because the changes made in the myfile.txt file in the featu
 Merging in Git combines changes from different branches. Unlike rebase, which creates a linear history, merge preserves the commit history of both branches.
 
 ----------------------------
+merge- all the commits from feature branch will be added along with a merge commit
+rebase - same as above but doesnt create merge commit
+squash - all commits in feature branch will be condensed into a single merge commit
+----------------------------
+
+
+git remote set-url origin git@github.com:Charanst/notes.git
+change the remote repo from https to ssh
 ----------------------------
 --------------------------------------------------------
 
