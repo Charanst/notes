@@ -18,9 +18,12 @@ squash - all commits in feature branch will be condensed into a single merge com
 git remote set-url origin git@github.com:Charanst/notes.git
 change the remote repo from https to ssh
 ----------------------------
+The git reset command in Git is used to reset the state of the current branch to a specific commit. It's a powerful command that can be used to undo changes, move the branch pointer, or unstage changes, depending on the options and arguments provided.
 --------------------------------------------------------
-
+The git revert command in Git is used to create a new commit that undoes the changes made in a previous commit. It's a safe way to revert changes without altering the existing commit history.
 --------------------------------------------------------
+git reset will remove the commit history.
+whereas, the revert will have the history by creating a new commit.
 ----------------------------
 ----------------------------
 ----------------------------
