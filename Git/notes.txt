@@ -25,6 +25,44 @@ The git revert command in Git is used to create a new commit that undoes the cha
 git reset will remove the commit history.
 whereas, the revert will have the history by creating a new commit.
 ----------------------------
+so with hard the files are deleted where as soft, only commit history is deleted but the files remain the file system
+ChatGPT
+Yes, that's a correct understanding.
+
+--hard Reset:
+
+Effect: Resets the branch pointer to the specified commit, and both the staging area (index) and the working directory are modified to match that commit. It discards all changes introduced after the specified commit.
+Files: The changes in the working directory are discarded, and the files are reverted to the state of the specified commit. Any uncommitted changes are lost.
+--soft Reset:
+
+Effect: Moves the branch pointer to the specified commit but does not modify the staging area or the working directory. It leaves your changes in both the staging area and the working directory.
+Files: The files in the working directory remain as they were. You can make additional modifications, and the changes introduced in the specified commit are staged for the next commit.
 ----------------------------
+The git stash command in Git is used to temporarily save changes that are not ready to be committed or that you want to set aside for a while. It's a way to store your changes in a "stash" and revert your working directory to a clean state.
+
+Effect: Takes your local changes in the working directory and saves them on a new stash.
+Use Case: Useful when you need to switch branches, work on something else, or clean your working directory without committing changes.
+
+Example Scenario:
+Suppose you have changes in your working directory, but you want to switch to a different branch without committing those changes:
+
+bash
+Copy code
+# Save changes to stash
+git stash
+
+# Switch to a different branch
+git checkout another_branch
+
+# Do some work on the other branch
+
+# Switch back to your original branch
+git checkout original_branch
+
+# Apply the changes from stash
+git stash apply
+
+# Optionally, drop the stash
+git stash drop
 ----------------------------
 ----------------------------
