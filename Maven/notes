@@ -1,0 +1,15 @@
+typically all the maven dependencies are stored at /home/ubuntu/.m2/repository
+------------------------------
+if we have to install a different version of maven, then we have to use wget and get the tar. In order to execute mvn using a different version, we have to give absolute path like maven-3.9.6/bin/mvn test
+------------------------------
+java is a dependency for maven
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------
+------------------------------

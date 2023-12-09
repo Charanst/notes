@@ -64,5 +64,8 @@ git stash apply
 
 # Optionally, drop the stash
 git stash drop
+
+
+The git stash drop command is used to remove (or drop) a stash. If you want to remove a specific stash from the stash list, you use this command.
 ----------------------------
 ----------------------------
